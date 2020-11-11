@@ -1,0 +1,44 @@
+val ktor_version = "1.4.2"
+val kotlin_version = "1.4.10"
+val logback_version = "1.2.1"
+
+plugins {
+    application
+    kotlin("jvm") version "1.4.10"
+}
+
+group = "com.example"
+version = "0.0.1"
+
+application {
+    mainClassName = "io.ktor.server.netty.EngineMain"
+}
+
+repositories {
+    mavenLocal()
+    jcenter()
+    maven { url = uri("https://kotlin.bintray.com/ktor") }
+}
+
+dependencies {
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
+    implementation("ch.qos.logback:logback-classic:$logback_version")
+    implementation("io.ktor:ktor-server-netty:$ktor_version")
+    implementation("io.ktor:ktor-server-core:$ktor_version")
+    implementation("io.ktor:ktor-server-sessions:$ktor_version")
+    implementation("io.ktor:ktor-network-tls-certificates:$ktor_version")
+    testImplementation("io.ktor:ktor-server-tests:$ktor_version")
+}
+
+kotlin.sourceSets["main"].kotlin.srcDirs("src")
+kotlin.sourceSets["test"].kotlin.srcDirs("test")
+
+sourceSets["main"].resources.srcDirs("resources")
+sourceSets["test"].resources.srcDirs("testresources")
+
+tasks.register<JavaExec>("generateJks") {
+    classpath = sourceSets.test.get().runtimeClasspath
+    main = "com.example.CertificateGenerator"
+}
+
+tasks.getByName("run").dependsOn("generateJks")
